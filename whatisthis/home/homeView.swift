@@ -11,85 +11,106 @@ import AVKit
 
 
 struct homeView: View {
-    @ObservedObject var homeViewModel  = PhotoReasoningViewModel()
-    @State var selectedImage: UIImage? = nil
+    @ObservedObject var homeViewModel = PhotoReasoningViewModel()
     @StateObject private var viewModel = ImagePickerViewModel()
     @State private var isPickerPresented = false
-    @State var welcome:String = "Ask Me!"
+    @State var welcome: String = "ask_me"
+    private let localizedStrings = LocalizedStrings.shared
     
-
     var body: some View {
         NavigationStack {
-           
-            VStack{
-               
-                if(viewModel.selectedImage == nil){
-                    Spacer()
-                }
-                
-              
-              
-                if let image = viewModel.selectedImage {
-                               Image(uiImage: image)
-                                   .resizable()
-                                   .scaledToFit()
-                                   .frame(width: 300, height: 300)
-                                   .cornerRadius(10)
-                                   .shadow(radius: 10)
-                           } else {
-                               Image("question_mark").resizable().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/,height: 100).padding(.all)
-                               Text("Upload your picture and ask what you are curious about").font(.title).multilineTextAlignment(.center).padding()
-                               Text("What is this?").font(.largeTitle).foregroundColor(Color("textColor")).bold()
-                           }
-                if(homeViewModel.inProgress){
-                    Text("We bring the best results for you").font(.title).multilineTextAlignment(.center).padding()
-                    ProgressView().controlSize(.large)
-                }else{
-                    ScrollView{
-                        Text(homeViewModel.outputText).padding()
-                    }
-
-                }
-                    Spacer()
-                           Button(action: {
-                               isPickerPresented = true
-                           }) {
-                               Text(!homeViewModel.outputText.isEmpty ? "Change image": "Select Image")
-                                   .font(.title2)
-                                   .padding()
-                                   .background(Color("AccentColor"))
-                                   .foregroundColor(.white)
-                                   .cornerRadius(10)
-                           }
-                           .sheet(isPresented: $isPickerPresented) {
-                               PhotoPicker(selectedImage: $viewModel.selectedImage).onDisappear(){
-                                   if(viewModel.selectedImage != nil){
-                                       homeViewModel.selectedItems = viewModel.selectedImage ?? UIImage()
-                                       welcome = "";           Task{
-                                           await homeViewModel.reason()
-                                       }
-                                       
-                                   }
-                               }
-                           }
-                           .padding()
-                
-            }.navigationTitle(welcome).frame(maxWidth: .infinity, maxHeight: .infinity).toolbar(content: {
-                if homeViewModel.outputText.isEmpty {
-                    ToolbarItem(){
+            VStack(spacing: 20) {
+                if viewModel.selectedImage == nil {
+                    VStack(spacing: 30) {
+                        Image("question_mark")
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .padding()
+                            .shadow(radius: 5)
                         
-                        NavigationLink(destination:  settingsView()) {
-                          
-                                Image(systemName: "gear" )
-                         
-                                       }
+                        Text(localizedStrings.string("upload_instruction"))
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                            .foregroundColor(.secondary)
+                        
+                        Text(localizedStrings.string("what_is_this"))
+                            .font(.largeTitle)
+                            .foregroundColor(Color("textColor"))
+                            .bold()
+                    }
+                    .padding()
+                } else {
+                    Image(uiImage: viewModel.selectedImage!)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 300)
+                        .cornerRadius(15)
+                        .shadow(radius: 10)
+                        .padding()
+                }
+                
+                if homeViewModel.inProgress {
+                    VStack(spacing: 15) {
+                        Text(localizedStrings.string("processing_message"))
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                        
+                        ProgressView()
+                            .controlSize(.large)
+                            .tint(Color("AccentColor"))
+                    }
+                    .padding()
+                } else {
+                    ScrollView {
+                        Text(homeViewModel.outputText)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .background(Color("backgroundGray").opacity(0.1))
+                    .cornerRadius(15)
+                    .padding()
+                }
+                
+                Spacer()
+                
+                Button(action: { isPickerPresented = true }) {
+                    HStack {
+                        Image(systemName: "photo")
+                        Text(localizedStrings.string(!homeViewModel.outputText.isEmpty ? "change_image" : "select_image"))
+                    }
+                    .font(.title3.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color("AccentColor"))
+                    .foregroundColor(.white)
+                    .cornerRadius(15)
+                }
+                .padding()
+                .sheet(isPresented: $isPickerPresented) {
+                    PhotoPicker(selectedImage: $viewModel.selectedImage)
+                        .onDisappear {
+                            if viewModel.selectedImage != nil {
+                                homeViewModel.selectedItems = viewModel.selectedImage ?? UIImage()
+                                welcome = ""
+                                Task {
+                                    await homeViewModel.reason()
+                                }
+                            }
+                        }
+                }
+            }
+            .navigationTitle(localizedStrings.string(welcome))
+            .toolbar {
+                if homeViewModel.outputText.isEmpty {
+                    ToolbarItem {
+                        NavigationLink(destination: settingsView()) {
+                            Image(systemName: "gear")
+                        }
                     }
                 }
-              
-                
-               
-
-            })
+            }
         }
     }
 }

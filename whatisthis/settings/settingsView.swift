@@ -8,67 +8,67 @@
 import SwiftUI
 
 struct settingsView: View {
+    @AppStorage("selectedLanguage") private var selectedLanguage: String = Language.english.rawValue
+    private let localizedStrings = LocalizedStrings.shared
     
-    let items:[ListItem] = [
-//        ListItem(emoji: "🤩", title: "Get Pro",subtitle: "Support an indie developer"),
-//        ListItem(emoji: "🌗", title: "Apperance"),
-//       
-//        ListItem(emoji: "⭐️", title: "Do you like the app?", subtitle: "Your review would help a lot!"),
-        ListItem(emoji: "🔒", title: "Privacy Policy"),
-        ListItem(emoji: "📕", title: "Terms and Conditions"),
-        ListItem(emoji: "𝕏", title: "Connect on Twitter/𝕏",subtitle: "@builtwithswift"),
-
+    let items = [
+        ListItem(emoji: "🌎", title: "Language", subtitle: "Change app language", isLanguageSelector: true),
+        ListItem(emoji: "🤩", title: "Rate App", subtitle: "Support us with 5 stars"),
+        ListItem(emoji: "𝕏", title: "Follow Us", subtitle: "@builtwithswift")
     ]
+    
     var body: some View {
-        
-        VStack {
-           
-            List {
-                   
-//                    Section{
-//                        
-//                        ForEach(0..<1,id: \.self){
-//                            index in
-//                        listItemView(item: items[index])
-//                        }
-//                    }
-//                    Section{
-//                        
-//                        ForEach(1..<3,id: \.self){
-//                            index in
-//                        listItemView(item: items[index])
-//                        }
-//                    }
-                    Section{
-                        
-                        ForEach(0..<2,id: \.self){
-                            index in
-                            Link(destination:URL(string: "https://firebasestorage.googleapis.com/v0/b/kamay-quote-app.appspot.com/o/policies%2Fwhat-is-this-privacy.html?alt=media&token=f1901e65-acd2-4110-92d3-084ece2a1774")!)  {
-                                listItemView(item: items[index])
-
+        List {
+            ForEach(items) { item in
+                if item.isLanguageSelector {
+                    Section {
+                        Picker("Select Language", selection: $selectedLanguage) {
+                            ForEach(Language.allCases, id: \.rawValue) { language in
+                                Text(languageName(for: language))
+                                    .tag(language.rawValue)
                             }
                         }
+                        .pickerStyle(.navigationLink)
+                    } header: {
+                        listItemView(item: item)
                     }
-
-                    Section{
-                        
-                        ForEach(2..<3,id: \.self){
-                            index in
-                            Link(destination:URL(string: "https://x.com/builtwithswift")!)  {
-                                listItemView(item: items[index])
-
-                            }                      }
+                } else if item.emoji == "𝕏" {
+                    Link(destination: URL(string: "https://x.com/builtwithswift")!) {
+                        listItemView(item: item)
                     }
-
-
-                   
+                } else {
+                    Button {
+                        if item.emoji == "🤩" {
+                            if let url = URL(string: "itms-apps://itunes.apple.com/app/YOUR-APP-ID") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                    } label: {
+                        listItemView(item: item)
+                    }
+                }
             }
-        }.navigationTitle("Settings")
-        
+        }
+        .navigationTitle("Settings")
+    }
+    
+    private func languageName(for language: Language) -> String {
+        switch language {
+        case .english:
+            return "English 🇺🇸"
+        case .german:
+            return "Deutsch 🇩🇪"
+        case .turkish:
+            return "Türkçe 🇹🇷"
+        case .spanish:
+            return "Español 🇪🇸"
+        case .japanese:
+            return "日本語 🇯🇵"
+        case .portuguese:
+            return "Português 🇧🇷"
+        }
     }
 }
-
-
 
 #Preview {
     settingsView()

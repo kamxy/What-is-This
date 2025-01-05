@@ -1,13 +1,17 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var showSplash = true
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+
     var body: some View {
-        homeView()
-       
+        if !hasSeenOnboarding {
+            OnboardingView()
+        } else {
+            AppStoreScreenshotGenerator()
+        }
     }
 }
+
 #Preview {
     ContentView()
 }
-
