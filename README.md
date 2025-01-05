@@ -1,9 +1,5 @@
 # What Is This - AI Visual Assistant
 
-<p align="center">
-  <img src="Assets/app_icon.png" width="120" alt="What Is This Logo">
-</p>
-
 ## Overview
 "What Is This" is an iOS application that uses AI to help users understand anything they see. Simply take a photo or select one from your library, and the AI will provide detailed explanations about the image.
 
@@ -35,6 +31,11 @@
 - Real-time processing status
 - Language customization
 - Settings management
+
+## Screenshots
+
+![5](https://github.com/user-attachments/assets/0b1b33fa-9a9a-41e8-928a-1761996c65a7)
+
 
 ## Technical Details
 
